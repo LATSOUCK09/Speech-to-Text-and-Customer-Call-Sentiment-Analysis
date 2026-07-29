@@ -1,0 +1,45 @@
+# Virtual environments
+env/
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter / IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Model and output artifacts
+model/
+*.pth
+*.pt
+*.bin
+resultats/
+transcriptions/resultats/
+
+# Audio / data generated files (optional)
+*.wav
+*.mp3
+*.mp4
+*.flac

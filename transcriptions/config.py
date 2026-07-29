@@ -1,0 +1,26 @@
+"""
+Configuration du pipeline.
+Toutes les valeurs modifiables sont regroupées ici, à un seul endroit.
+"""
+
+from dataclasses import dataclass
+import torch
+
+
+@dataclass
+class Config:
+    # Modèle
+    model_name: str = "jonatasgrosman/wav2vec2-large-xlsr-53-french"
+    sample_rate: int = 16000
+    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+
+    # Découpage des appels longs
+    chunk_duration_sec: float = 20.0   # durée de chaque segment
+    overlap_sec: float = 2.0           # chevauchement entre segments
+
+    # Filtrage des segments silencieux
+    min_duration_sec: float = 0.3
+    silence_amplitude_threshold: float = 1e-4
+
+    # Formats acceptés
+    extensions_audio: tuple = (".wav", ".mp3", ".flac", ".ogg", ".m4a")
