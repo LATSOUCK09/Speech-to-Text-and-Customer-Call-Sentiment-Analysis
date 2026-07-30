@@ -1,4 +1,4 @@
-name: Sync to Hugging Face Hub
+name: Speech-Text-Analysis
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Sync to Hugging Face Hub
+      - name: Speech-Text-Analysis
         uses: huggingface/hub-sync@v0.1.0
         with:
           github_repo_id: ${{ github.repository }}
