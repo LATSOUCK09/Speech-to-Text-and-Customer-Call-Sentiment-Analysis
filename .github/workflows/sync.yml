@@ -1,20 +1,21 @@
+
 name: Speech-Text-Analysis
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [main] # Vérifiez si votre branche s'appelle main ou master
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Speech-Text-Analysis
-        uses: huggingface/hub-sync@v0.1.0
+      - uses: actions/checkout@v4
         with:
-          github_repo_id: ${{ github.repository }}
-          huggingface_repo_id: LATSOUCK/Speech-Text-Analysis
-          hf_token: ${{ secrets.HF_TOKEN }}
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git push https://LATSOUCK:$HF_TOKEN@huggingface.co/spaces/LATSOUCK/Speech-Text-Analysis main
