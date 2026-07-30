@@ -557,3 +557,6 @@ python app.py
 # Docker
 docker-compose up --build
 ```
+
+## Contact
+Pour toute question ou préoccupation, veuillez nous contacter à l'adresse[biramegueye0901@gmail.com]( mailto:support@example.com).
