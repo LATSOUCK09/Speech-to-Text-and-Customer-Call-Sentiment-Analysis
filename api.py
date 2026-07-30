@@ -1,3 +1,9 @@
+"""API HTTP pour la transcription d'appels et l'analyse de sentiment.
+
+Ce module expose un service FastAPI capable de recevoir un fichier audio,
+le transcrire puis analyser le sentiment du texte obtenu.
+"""
+
 import os
 import tempfile
 import threading
@@ -14,11 +20,23 @@ app = FastAPI(
 
 
 class PipelineService:
+    """Service de pipeline pour initialiser et exécuter la transcription + analyse.
+
+    Ce service charge paresseusement les composants du pipeline lorsque la
+    première requête arrive, puis conserve les objets en mémoire pour les
+    requêtes suivantes.
+    """
+
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._components: Optional[dict] = None
 
     def get_components(self):
+        """Initialise et retourne les composants du pipeline.
+
+        Utilise un verrou pour garantir que les composants sont construits une
+        seule fois dans un contexte multi-thread.
+        """
         if self._components is None:
             with self._lock:
                 if self._components is None:
@@ -39,6 +57,16 @@ class PipelineService:
         return self._components
 
     def traiter_audio(self, chemin_audio: str, chunk_duration: float, overlap: float) -> dict:
+        """Transcrit un fichier audio puis analyse le sentiment du texte.
+
+        Args:
+            chemin_audio: Chemin vers le fichier audio temporaire.
+            chunk_duration: Durée des segments d'audio en secondes.
+            overlap: Recouvrement entre segments en secondes.
+
+        Returns:
+            Un dictionnaire contenant le résultat de la transcription et de l'analyse.
+        """
         components = self.get_components()
         config = components["config"]
         config.chunk_duration_sec = chunk_duration
@@ -78,6 +106,10 @@ service = PipelineService()
 
 @app.get("/")
 def root() -> dict:
+    """Point d'entrée principal de l'API.
+
+    Renvoie un message de bienvenue et les routes disponibles.
+    """
     return {
         "message": "API prête à traiter des fichiers audio.",
         "endpoints": {"health": "/health", "analyze": "/analyze"},
@@ -86,6 +118,10 @@ def root() -> dict:
 
 @app.get("/health")
 def health() -> dict:
+    """Vérifie que le service est opérationnel.
+
+    Retourne un statut simple qui peut être utilisé pour une vérification de santé.
+    """
     return {"status": "ok", "message": "API prête à traiter des fichiers audio."}
 
 
@@ -95,6 +131,17 @@ async def analyze_audio(
     chunk_duration: float = 20.0,
     overlap: float = 2.0,
 ) -> dict:
+    """Reçoit un fichier audio, le transcrit et analyse le sentiment.
+
+    Args:
+        file: Fichier audio uploadé via multipart/form-data.
+        chunk_duration: Durée en secondes des segments de traitement audio.
+        overlap: Recouvrement en secondes entre les segments audio.
+
+    Returns:
+        Un dictionnaire contenant la transcription, l'analyse du sentiment et
+        les métadonnées du fichier.
+    """
     if not file.filename:
         raise HTTPException(status_code=400, detail="Aucun fichier audio fourni.")
 

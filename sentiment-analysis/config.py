@@ -1,3 +1,9 @@
+"""Configuration d'entraînement pour le module sentiment-analysis.
+
+Ce fichier regroupe les hyperparamètres, les labels et les mappings
+texte→indice utilisés dans la préparation des données, la construction du
+modèle et l'entraînement.
+"""
 
 MODEL_NAME="camembert-base"
 MAX_LENGTH=256

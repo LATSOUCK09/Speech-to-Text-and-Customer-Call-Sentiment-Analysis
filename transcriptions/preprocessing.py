@@ -16,7 +16,18 @@ except ImportError:
 
 
 def charger_et_pretraiter(chemin_fichier: str, config: Config) -> np.ndarray:
-    """Charge un fichier audio et le convertit en mono / 16 kHz."""
+    """Charge un fichier audio et le convertit en mono 16 kHz.
+
+    Args:
+        chemin_fichier: Chemin vers le fichier (.wav, .mp3, etc.).
+        config: Configuration (``sample_rate``).
+
+    Returns:
+        Signal numpy 1D.
+
+    Raises:
+        ValueError: Si le fichier est vide après chargement.
+    """
     signal, _ = librosa.load(chemin_fichier, sr=config.sample_rate, mono=True)
 
     if len(signal) == 0:
@@ -26,5 +37,13 @@ def charger_et_pretraiter(chemin_fichier: str, config: Config) -> np.ndarray:
 
 
 def est_silencieux(audio: np.ndarray, config: Config) -> bool:
-    """Détecte un segment quasi-silencieux (peu utile de le transcrire)."""
+    """Détecte un segment quasi-silencieux à partir de l'amplitude max.
+
+    Args:
+        audio: Signal numpy 1D.
+        config: Configuration (``silence_amplitude_threshold``).
+
+    Returns:
+        ``True`` si l'amplitude maximale est inférieure au seuil.
+    """
     return np.max(np.abs(audio)) < config.silence_amplitude_threshold

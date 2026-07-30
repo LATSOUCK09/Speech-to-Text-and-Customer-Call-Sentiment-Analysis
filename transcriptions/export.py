@@ -16,6 +16,16 @@ except ImportError:
 
 
 def sauvegarder_resultats(resultats: List[ResultatTranscription], dossier_sortie: str):
+    """Sauvegarde les résultats de transcription en CSV et JSON.
+
+    Produit :
+        - ``transcriptions.csv`` : une ligne par appel (fichier, durée, texte)
+        - ``transcriptions_detail.json`` : détail complet avec segments et timestamps
+
+    Args:
+        resultats: Liste de ``ResultatTranscription``.
+        dossier_sortie: Répertoire de destination (créé si absent).
+    """
     os.makedirs(dossier_sortie, exist_ok=True)
 
     # --- CSV : une ligne par appel ---

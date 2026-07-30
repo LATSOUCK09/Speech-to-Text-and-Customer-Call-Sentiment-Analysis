@@ -16,7 +16,14 @@ except ImportError:
 
 @dataclass
 class Segment:
-    """Un segment audio découpé, avec son timing d'origine."""
+    """Segment audio découpé avec repères temporels et texte transcrit.
+
+    Attributes:
+        audio: Signal numpy du segment.
+        start_sec: Timestamp de début dans l'appel original (s).
+        end_sec: Timestamp de fin (s).
+        texte: Texte transcrit (rempli après inférence ASR).
+    """
     audio: np.ndarray
     start_sec: float
     end_sec: float
@@ -24,11 +31,17 @@ class Segment:
 
 
 def decouper_en_segments(audio: np.ndarray, config: Config) -> List[Segment]:
-    """
-    Découpe un signal en segments de taille fixe avec chevauchement.
+    """Découpe un signal en segments de taille fixe avec chevauchement.
 
-    Le chevauchement évite qu'un mot prononcé pile à la frontière d'un
-    découpage soit coupé en deux et mal reconnu.
+    Le chevauchement évite qu'un mot à la frontière d'un découpage soit
+    coupé en deux et mal reconnu par l'ASR.
+
+    Args:
+        audio: Signal numpy 1D (mono, 16 kHz).
+        config: Configuration (``chunk_duration_sec``, ``overlap_sec``, ``sample_rate``).
+
+    Returns:
+        Liste de ``Segment``. Un seul segment si l'audio est plus court que ``chunk_duration_sec``.
     """
     sr = config.sample_rate
     chunk_len = int(config.chunk_duration_sec * sr)
@@ -58,10 +71,16 @@ def decouper_en_segments(audio: np.ndarray, config: Config) -> List[Segment]:
 
 
 def fusionner_transcriptions(segments: List[Segment]) -> str:
-    """
-    Recompose le texte complet à partir des segments transcrits.
+    """Recompose le texte complet par concaténation des segments transcrits.
 
-    Version simple : concaténation avec espace. À cause du chevauchement
-    audio, de légères répétitions de mots peuvent apparaître aux frontières.
+    Note:
+        Des répétitions de mots peuvent apparaître aux frontières à cause
+        du chevauchement audio entre segments.
+
+    Args:
+        segments: Liste de segments avec ``texte`` renseigné.
+
+    Returns:
+        Texte complet joint par des espaces.
     """
     return " ".join(s.texte for s in segments if s.texte)

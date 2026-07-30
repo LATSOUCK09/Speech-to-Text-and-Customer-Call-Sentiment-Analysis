@@ -1,6 +1,7 @@
-"""
-Configuration du pipeline.
-Toutes les valeurs modifiables sont regroupées ici, à un seul endroit.
+"""Configuration centralisée du pipeline de transcription ASR.
+
+Toutes les valeurs modifiables (modèle, sample rate, découpage, silence)
+sont regroupées dans la dataclass ``Config``.
 """
 
 from dataclasses import dataclass
@@ -9,6 +10,18 @@ import torch
 
 @dataclass
 class Config:
+    """Paramètres du pipeline Wav2Vec2.
+
+    Attributes:
+        model_name: Identifiant Hugging Face du modèle ASR.
+        sample_rate: Fréquence d'échantillonnage cible (Hz).
+        device: Device PyTorch (``cuda`` ou ``cpu``).
+        chunk_duration_sec: Durée de chaque segment audio (s).
+        overlap_sec: Chevauchement entre segments consécutifs (s).
+        min_duration_sec: Durée minimale pour tenter une transcription.
+        silence_amplitude_threshold: Seuil d'amplitude max pour ignorer un segment.
+        extensions_audio: Extensions de fichiers acceptées.
+    """
     # Modèle
     model_name: str = "jonatasgrosman/wav2vec2-large-xlsr-53-french"
     sample_rate: int = 16000

@@ -1,3 +1,9 @@
+"""Entraîne et évalue le modèle de classification de sentiment.
+
+Ce module contient les boucles d'entraînement et de validation, ainsi que la
+fonction `main` pour lancer le processus complet.
+"""
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -11,13 +17,17 @@ import config
 N_CLASSES = len(config.ID2LABEL)
 
 
-# boucle d'entrainement pour une époque
 def train_epoch(
         model,
         optimizer,
         criterion,
         train_loader,
         device="cpu"):
+    """Effectue une passe d'entraînement complète sur le train loader.
+
+    Returns:
+        Tuple ``(train_loss, train_accuracy)``.
+    """
 
     train_loss = 0.0
     all_preds = []
@@ -31,7 +41,7 @@ def train_epoch(
         inputs = batch["input_ids"].to(device)
         labels = batch["labels"].to(device).long()
         attention_mask = batch["attention_mask"].to(device)
-        output = model(inputs, attention_mask=attention_mask)  # logits shape: (batch, N_CLASSES)
+        output = model(inputs, attention_mask=attention_mask)  
         loss = criterion(output, labels)
         loss.backward()
         optimizer.step()
@@ -46,11 +56,15 @@ def train_epoch(
     return train_loss, train_acc
 
 
-# boucle d'évaluation pour une époque
 def val_epoch(model,
               val_loader,
               criterion,
               device="cpu"):
+    """Évalue le modèle sur un jeu de validation ou test.
+
+    Returns:
+        Tuple ``(valid_loss, accuracy, f1_weighted)``.
+    """
 
     valid_loss = 0.0
     all_preds = []
@@ -77,6 +91,11 @@ def val_epoch(model,
 
 
 def main():
+    """Lance l'entraînement complet : boucle d'époques, sauvegarde du meilleur modèle, évaluation test.
+
+    Produit ``best_bert_sentiment.pth`` dans le répertoire courant.
+    Copier vers ``../model/best_model.pth`` pour l'inférence en production.
+    """
 
     set_seed(config.RANDOM_STATE)
 

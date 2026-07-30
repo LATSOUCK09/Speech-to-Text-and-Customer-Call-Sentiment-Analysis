@@ -1,6 +1,13 @@
-"""
-Analyse de sentiment sur le texte transcrit d'un appel.
-Tout est regroupé ici : config, architecture du modèle, chargement, inférence.
+"""Inférence d'analyse de sentiment sur le texte transcrit d'un appel.
+
+Regroupe la configuration, l'architecture CamemBERT, le chargement des poids
+fine-tunés (``model/best_model.pth``) et la fonction d'inférence.
+
+Classes exportées :
+    - ``BertForSentimentClassification`` : wrapper PyTorch du classifieur
+    - ``AnalyseurSentiment`` : interface haut niveau (``analyser(texte)``)
+
+Labels : ``mecontent``, ``neutre``, ``satisfait``.
 """
 
 from pathlib import Path
@@ -18,7 +25,11 @@ MAX_LENGTH = 256
 
 
 class BertForSentimentClassification(nn.Module):
-    """Votre architecture, inchangée."""
+    """Classifieur CamemBERT à 3 classes pour l'analyse de sentiment.
+
+    Encapsule ``AutoModelForSequenceClassification`` pré-configuré avec
+    les mappings ``ID2LABEL`` / ``LABEL2ID``.
+    """
 
     def __init__(self, model_name=MODEL_NAME, n_class=len(ID2LABEL)):
         super().__init__()
@@ -27,11 +38,16 @@ class BertForSentimentClassification(nn.Module):
         )
 
     def forward(self, input_ids, attention_mask):
+        """Passe avant : retourne les logits bruts (sans softmax)."""
         return self.model(input_ids=input_ids, attention_mask=attention_mask).logits
 
 
 class AnalyseurSentiment:
-    """Charge le modèle une seule fois, puis l'appelle sur chaque transcription."""
+    """Charge le modèle de sentiment une fois, puis l'appelle sur chaque texte.
+
+    Args:
+        checkpoint_path: Chemin vers les poids fine-tunés (défaut : ``model/best_model.pth``).
+    """
 
     def __init__(self, checkpoint_path=CHECKPOINT_PATH):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -49,7 +65,15 @@ class AnalyseurSentiment:
 
     @torch.no_grad()
     def analyser(self, texte: str) -> dict:
-        """Retourne {"label": ..., "scores": {...}}"""
+        """Classifie le sentiment d'un texte transcrit.
+
+        Args:
+            texte: Transcription complète de l'appel.
+
+        Returns:
+            Dictionnaire ``{"label": str, "scores": {classe: probabilité}}``.
+            Retourne ``{"label": "indetermine", "scores": {}}`` si le texte est vide.
+        """
         if not texte or not texte.strip():
             return {"label": "indetermine", "scores": {}}
 

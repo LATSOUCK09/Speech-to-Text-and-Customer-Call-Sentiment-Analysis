@@ -1,5 +1,11 @@
 
 
+"""Interface Gradio pour la démonstration de transcription audio et analyse de sentiment.
+
+Ce module contient la logique de création de l'interface, le pipeline de
+traitement et l'export de l'application Gradio.
+"""
+
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -14,6 +20,11 @@ import spaces
 
 @lru_cache(maxsize=1)
 def _get_runtime_components():
+    """Charge et met en cache les composants du pipeline (modèles + config).
+
+    Returns:
+        Tuple ``(transcrire_appel, modele_asr, config_transcription, analyseur_sentiment)``.
+    """
     from sentiment import AnalyseurSentiment
     from transcriptions.config import Config as ConfigTranscription
     from transcriptions.model import ModeleASR
@@ -26,6 +37,14 @@ def _get_runtime_components():
 
 @spaces.GPU
 def pipeline(audio_path: str):
+    """Pipeline de traitement appelé par Gradio.
+
+    Args:
+        audio_path: Chemin local du fichier audio uploadé via Gradio.
+
+    Returns:
+        transcription, label de sentiment et probabilités.
+    """
     if not audio_path:
         return "", "indetermine", [["mecontent", 0.0], ["neutre", 0.0], ["satisfait", 0.0]]
 
@@ -47,6 +66,11 @@ def pipeline(audio_path: str):
 
 
 def create_demo():
+    """Construit l'interface Gradio pour l'application.
+
+    Returns:
+        Une instance `gr.Interface` prête à être lancée.
+    """
     return gr.Interface(
         fn=pipeline,
         inputs=gr.Audio(type="filepath", label="Déposer un appel client"),

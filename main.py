@@ -1,4 +1,10 @@
-""""
+"""Point d'entrée CLI — pipeline complet transcription + sentiment.
+
+Orchestre le traitement batch d'appels clients :
+  1. Transcription ASR (Wav2Vec2) via ``transcriptions.pipeline``
+  2. Analyse de sentiment (CamemBERT) via ``sentiment.AnalyseurSentiment``
+  3. Export des résultats combinés en CSV et JSON
+
 Utilisation :
   python main.py --input appel1.wav --output resultats/
   python main.py --input dossier_appels/ --output resultats/
@@ -23,12 +29,16 @@ from sentiment import AnalyseurSentiment
 
 
 def analyser_sentiments(resultats_transcription, analyseur: AnalyseurSentiment):
-    """
-    Prend les résultats de transcription (liste de ResultatTranscription)
-    et ajoute le sentiment détecté pour chaque appel.
+    """Enrichit chaque transcription avec un label et des scores de sentiment.
 
-    Retourne une liste de dictionnaires combinant transcription + sentiment,
-    prête à être exportée.
+    Args:
+        resultats_transcription: Liste de ``ResultatTranscription`` produite par le pipeline ASR.
+        analyseur: Instance ``AnalyseurSentiment`` déjà chargée.
+
+    Returns:
+        Liste de dictionnaires prêts à l'export, chacun contenant
+        ``fichier``, ``duree_sec``, ``transcription``, ``sentiment``,
+        ``sentiment_scores`` et ``erreur``.
     """
     resultats_combines = []
 
@@ -59,7 +69,15 @@ def analyser_sentiments(resultats_transcription, analyseur: AnalyseurSentiment):
 
 
 def sauvegarder_resultats_combines(resultats_combines, dossier_sortie: str):
-    """Exporte le résultat final (transcription + sentiment) en CSV et JSON."""
+    """Exporte le résultat final (transcription + sentiment) en CSV et JSON.
+
+    Produit ``resultats_finaux.csv`` (vue tabulaire) et
+    ``resultats_finaux.json`` (détail complet avec scores par classe).
+
+    Args:
+        resultats_combines: Liste retournée par ``analyser_sentiments()``.
+        dossier_sortie: Répertoire de destination (créé si absent).
+    """
     os.makedirs(dossier_sortie, exist_ok=True)
 
     lignes_csv = [
@@ -86,6 +104,7 @@ def sauvegarder_resultats_combines(resultats_combines, dossier_sortie: str):
 
 
 def main():
+    """Parse les arguments de la ligne de commande et lance le traitement batch."""
     parser = argparse.ArgumentParser(
         description="Transcription d'appels clientèle + analyse de sentiment"
     )

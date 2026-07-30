@@ -13,7 +13,14 @@ except ImportError:
 
 
 class ModeleASR:
-    """Charge le modèle une seule fois, puis le réutilise pour tous les appels."""
+    """Modèle Wav2Vec2 pour la reconnaissance vocale (CTC).
+
+    Charge ``Wav2Vec2Processor`` et ``Wav2Vec2ForCTC`` depuis Hugging Face
+    et les réutilise pour transcrire tous les segments d'un lot.
+
+    Args:
+        config: Configuration contenant ``model_name`` et ``device``.
+    """
 
     def __init__(self, config: Config):
         self.config = config
@@ -26,7 +33,14 @@ class ModeleASR:
 
     @torch.no_grad()
     def transcrire_segment(self, audio: np.ndarray) -> str:
-        """Transcrit un segment audio déjà prétraité (mono, 16 kHz)."""
+        """Transcrit un segment audio prétraité (mono, 16 kHz).
+
+        Args:
+            audio: Signal numpy 1D.
+
+        Returns:
+            Texte transcrit (chaîne vide possible si silence/bruit).
+        """
         inputs = self.processor(
             audio,
             sampling_rate=self.config.sample_rate,

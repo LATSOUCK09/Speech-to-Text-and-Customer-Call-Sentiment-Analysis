@@ -1,3 +1,9 @@
+"""Point d’entrée Gradio pour l’application de transcription et d’analyse de sentiment.
+
+Ce fichier expose `app` comme objet Gradio afin de lancer l'interface
+web avec `python app.py` ou via un serveur de déploiement.
+"""
+
 import os
 import sys
 from pathlib import Path

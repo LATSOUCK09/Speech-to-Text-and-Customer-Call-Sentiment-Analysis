@@ -1,3 +1,9 @@
+"""Exemple de client simple pour tester l'API de transcription et d'analyse.
+
+Ce script envoie un fichier audio à l'endpoint `/analyze` et affiche la
+réponse JSON.
+"""
+
 import os
 import requests
 

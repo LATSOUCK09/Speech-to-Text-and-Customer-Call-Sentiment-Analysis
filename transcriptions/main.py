@@ -1,5 +1,5 @@
 """
-Point d'entrée en ligne de commande.
+Point d'entrée en ligne de commande pour la transcription d'appels.
 
 Utilisation :
   python main.py --input appel1.wav --output resultats/
@@ -17,6 +17,7 @@ except ImportError:
 
 
 def main():
+    """Parse les arguments de la ligne de commande et exécute le pipeline."""
     parser = argparse.ArgumentParser(
         description="Pipeline de transcription d'appels clientèle (wav2vec2 français)"
     )

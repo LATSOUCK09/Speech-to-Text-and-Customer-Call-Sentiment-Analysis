@@ -26,7 +26,18 @@ except ImportError:
 
 
 def transcrire_appel(chemin_fichier: str, modele: ModeleASR, config: Config) -> ResultatTranscription:
-    """Pipeline complet pour un seul fichier audio."""
+    """Exécute le pipeline ASR complet pour un seul fichier audio.
+
+    Étapes : prétraitement → découpage → transcription segment par segment → fusion.
+
+    Args:
+        chemin_fichier: Chemin vers le fichier audio.
+        modele: Instance ``ModeleASR`` déjà chargée.
+        config: Configuration du pipeline.
+
+    Returns:
+        ``ResultatTranscription`` avec texte complet, segments et éventuelle erreur.
+    """
     nom_fichier = Path(chemin_fichier).name
 
     try:
@@ -67,7 +78,18 @@ def transcrire_appel(chemin_fichier: str, modele: ModeleASR, config: Config) -> 
 
 
 def lister_fichiers_audio(chemin: str, config: Config) -> List[str]:
-    """Retourne la liste des fichiers audio à traiter (fichier unique ou dossier)."""
+    """Résout un chemin en liste de fichiers audio à traiter.
+
+    Args:
+        chemin: Fichier audio unique ou dossier contenant des appels.
+        config: Configuration (utilisée pour filtrer les extensions).
+
+    Returns:
+        Liste triée de chemins absolus/relatifs vers les fichiers audio.
+
+    Raises:
+        FileNotFoundError: Si le chemin n'existe pas.
+    """
     chemin_obj = Path(chemin)
 
     if chemin_obj.is_file():
@@ -83,7 +105,19 @@ def lister_fichiers_audio(chemin: str, config: Config) -> List[str]:
 
 
 def traiter_lot(chemin_entree: str, dossier_sortie: str, config: Config) -> List[ResultatTranscription]:
-    """Traite un fichier unique ou un dossier entier d'appels, puis exporte les résultats."""
+    """Traite un lot de fichiers audio et exporte les transcriptions.
+
+    Charge le modèle ASR une seule fois, transcrit chaque fichier,
+    puis sauvegarde CSV + JSON dans ``dossier_sortie``.
+
+    Args:
+        chemin_entree: Fichier ou dossier source.
+        dossier_sortie: Répertoire de destination pour les exports.
+        config: Configuration du pipeline.
+
+    Returns:
+        Liste de ``ResultatTranscription`` (vide si aucun fichier trouvé).
+    """
     fichiers = lister_fichiers_audio(chemin_entree, config)
 
     if not fichiers:
