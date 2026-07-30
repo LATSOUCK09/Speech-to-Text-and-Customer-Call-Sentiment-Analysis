@@ -3,12 +3,12 @@ transformers
 datasets
 scikit-learn
 tqdm
-torch
 torchaudio
-transformers
 librosa
 soundfile
 numpy
 pandas
-tqdm
 gradio
+fastapi
+uvicorn
+requests
