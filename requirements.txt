@@ -12,3 +12,4 @@ gradio
 fastapi
 uvicorn
 requests
+python-multipart
